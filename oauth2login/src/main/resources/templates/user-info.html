@@ -1,12 +1,128 @@
-<!--templates/user-info.html-->
+<!--template/user-info.html-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>User Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .nav-links {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome, <span th:text="${user.name}"></span></h1>
-    <p>Email: <span th:text="${user.email}"></span></p>
-    <a href="/contacts">View Contacts</a>
+    
+    <div class="section">
+        <h2>Basic Information</h2>
+        <ul>
+            <li><strong>Full Name:</strong> <span th:text="${user.name}"></span></li>
+            <li><strong>Email:</strong> <span th:text="${user.email}"></span></li>
+            <li th:if="${user.given_name}"><strong>First Name:</strong> <span th:text="${user.given_name}"></span></li>
+            <li th:if="${user.family_name}"><strong>Last Name:</strong> <span th:text="${user.family_name}"></span></li>
+        </ul>
+    </div>
+    
+    <!-- Detailed User Information from Google People API -->
+    <div class="section" th:if="${userDetails}">
+        <h2>Detailed Profile Information</h2>
+        
+        <!-- Names -->
+        <div th:if="${userDetails.names != null && !userDetails.names.empty}">
+            <h3>Name Details</h3>
+            <ul>
+                <li th:if="${userDetails.names[0].givenName}"><strong>Given Name:</strong> <span th:text="${userDetails.names[0].givenName}"></span></li>
+                <li th:if="${userDetails.names[0].middleName}"><strong>Middle Name:</strong> <span th:text="${userDetails.names[0].middleName}"></span></li>
+                <li th:if="${userDetails.names[0].familyName}"><strong>Family Name:</strong> <span th:text="${userDetails.names[0].familyName}"></span></li>
+            </ul>
+        </div>
+        
+        <!-- Phone Numbers -->
+        <div th:if="${userDetails.phoneNumbers != null && !userDetails.phoneNumbers.empty}">
+            <h3>Phone Numbers</h3>
+            <ul>
+                <li th:each="phone : ${userDetails.phoneNumbers}">
+                    <strong th:text="${phone.type != null ? phone.type : 'Phone'}"></strong>: 
+                    <span th:text="${phone.value}"></span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Addresses -->
+        <div th:if="${userDetails.addresses != null && !userDetails.addresses.empty}">
+            <h3>Addresses</h3>
+            <ul>
+                <li th:each="address : ${userDetails.addresses}">
+                    <strong th:text="${address.type != null ? address.type : 'Address'}"></strong>:
+                    <span th:text="${address.formattedValue}"></span>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Birthday -->
+        <div th:if="${userDetails.birthdays != null && !userDetails.birthdays.empty}">
+            <h3>Birthday</h3>
+            <p th:with="date=${userDetails.birthdays[0].date}">
+                <span th:if="${date.year}" th:text="${date.year}"></span>
+                <span th:if="${date.month}" th:text="${'-' + date.month}"></span>
+                <span th:if="${date.day}" th:text="${'-' + date.day}"></span>
+            </p>
+        </div>
+        
+        <!-- Gender -->
+        <div th:if="${userDetails.genders != null && !userDetails.genders.empty}">
+            <h3>Gender</h3>
+            <p th:text="${userDetails.genders[0].value}"></p>
+        </div>
+        
+        <!-- Age Range -->
+        <div th:if="${userDetails.ageRanges != null && !userDetails.ageRanges.empty}">
+            <h3>Age Range</h3>
+            <p th:text="${userDetails.ageRanges[0].ageRange}"></p>
+        </div>
+    </div>
+    
+    <!-- Debug section to see all available user data (uncomment if needed) -->
+    <!--
+    <div class="section">
+        <h2>All OAuth2 User Attributes</h2>
+        <ul>
+            <li th:each="attr : ${user}">
+                <strong th:text="${attr.key}"></strong>: <span th:text="${attr.value}"></span>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>All People API User Details</h2>
+        <pre th:text="${userDetails}"></pre>
+    </div>
+    -->
+    
+    <div class="nav-links">
+        <a href="/contacts">View Contacts</a> | 
+        <a href="/logout">Logout</a>
+    </div>
 </body>
 </html>

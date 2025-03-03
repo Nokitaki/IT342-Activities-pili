@@ -1,0 +1,13 @@
+<!--template/error.html-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Error</title>
+</head>
+<body>
+    <h1>An Error Occurred</h1>
+    <p th:if="${error}" th:text="${error}">Error details</p>
+    <p th:unless="${error}">Unknown error occurred</p>
+    <a href="/">Return to home</a>
+</body>
+</html>
