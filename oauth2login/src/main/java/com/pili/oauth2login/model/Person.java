@@ -1,8 +1,8 @@
 package com.pili.oauth2login.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.LocalDate;
 import java.util.List;
-
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Person {
@@ -14,9 +14,8 @@ public class Person {
     private List<Address> addresses;
     private List<Birthday> birthdays;
     private List<Gender> genders;
-    private List<AgeRange> ageRanges;
+    private Age age; // Change from List<AgeRange> to Age
 
-    // Getters and setters
     public String getResourceName() {
         return resourceName;
     }
@@ -71,6 +70,7 @@ public class Person {
 
     public void setBirthdays(List<Birthday> birthdays) {
         this.birthdays = birthdays;
+        this.calculateAge();
     }
 
     public List<Gender> getGenders() {
@@ -81,11 +81,17 @@ public class Person {
         this.genders = genders;
     }
 
-    public List<AgeRange> getAgeRanges() {
-        return ageRanges;
+    public Age getAge() {
+        return age;
     }
 
-    public void setAgeRanges(List<AgeRange> ageRanges) {
-        this.ageRanges = ageRanges;
+    private void calculateAge() {
+        if (birthdays != null && !birthdays.isEmpty()) {
+            Birthday birthday = birthdays.get(0);
+            LocalDate birthDate = LocalDate.of(birthday.getYear(), birthday.getMonth(), birthday.getDay());
+            this.age = new Age(birthDate);
+        } else {
+            this.age = null;
+        }
     }
 }

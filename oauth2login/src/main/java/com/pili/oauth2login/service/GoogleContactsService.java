@@ -71,7 +71,7 @@ public class GoogleContactsService {
             
             // Google People API endpoint for user profile
             String url = "https://people.googleapis.com/v1/people/me" +
-                    "?personFields=names,emailAddresses,addresses,birthdays,phoneNumbers,genders,ageRanges,photos";
+                    "?personFields=names ,emailAddresses,addresses,birthdays,phoneNumbers,genders,photos";
             
             return webClient.get()
                     .uri(url)

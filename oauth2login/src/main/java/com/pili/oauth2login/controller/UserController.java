@@ -28,19 +28,27 @@ public class UserController {
 
     @GetMapping("/user-info")
     public String userInfo(@AuthenticationPrincipal OAuth2User principal, 
-                           OAuth2AuthenticationToken authentication,
-                           Model model) {
+                        OAuth2AuthenticationToken authentication,
+                        Model model) {
         if (principal == null) {
             logger.warn("Attempted to access /user-info without authentication");
             return "redirect:/";
         }
 
         model.addAttribute("user", principal.getAttributes());
-        
+
         try {
             // Fetch detailed profile from People API
             Person userDetails = googleContactsService.getUserDetails(authentication);
             model.addAttribute("userDetails", userDetails);
+
+            // Ensure age is added separately
+            if (userDetails.getAge() != null) {
+                model.addAttribute("age", userDetails.getAge().getAge());
+            } else {
+                model.addAttribute("age", "Unknown");
+            }
+
             logger.info("Successfully retrieved user details");
             return "user-info";
         } catch (Exception e) {
@@ -50,6 +58,7 @@ public class UserController {
             return "error";
         }
     }
+
     
     @ExceptionHandler(Exception.class)
     public String handleError(Exception e, Model model) {
