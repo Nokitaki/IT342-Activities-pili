@@ -28,11 +28,11 @@ public class UserController {
 
     @GetMapping("/user-info")
     public String userInfo(@AuthenticationPrincipal OAuth2User principal, 
-                        OAuth2AuthenticationToken authentication,
-                        Model model) {
-        if (principal == null) {
+                            OAuth2AuthenticationToken authentication,
+                            Model model) {
+        if (principal == null || authentication == null) {
             logger.warn("Attempted to access /user-info without authentication");
-            return "redirect:/";
+            return "redirect:/login"; // Redirect to login page
         }
 
         model.addAttribute("user", principal.getAttributes());

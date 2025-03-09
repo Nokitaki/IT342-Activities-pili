@@ -1,14 +1,11 @@
-//GoogleContactsService.java
 package com.pili.oauth2login.service;
 
 import com.pili.oauth2login.model.PeopleResponse;
 import com.pili.oauth2login.model.Person;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -30,30 +27,37 @@ public class GoogleContactsService {
         this.webClient = WebClient.builder().build();
     }
 
+    /**
+     * Retrieves the user's Google Contacts from the Google People API.
+     *
+     * @param authentication OAuth2 authentication token
+     * @return PeopleResponse containing contacts data
+     */
     public PeopleResponse getContacts(OAuth2AuthenticationToken authentication) {
         try {
             OAuth2AuthorizedClient client = getAuthorizedClient(authentication);
             String accessToken = client.getAccessToken().getTokenValue();
             logger.debug("Access token obtained for contacts retrieval");
-            
-            // Google People API endpoint for contacts
-            // Update this line in the getContacts method:
+
+            // Google People API endpoint for fetching contacts
             String url = "https://people.googleapis.com/v1/people/me/connections" +
-            "?personFields=names,emailAddresses,photos,phoneNumbers" + // Add phoneNumbers here
-            "&pageSize=100";
-            
+                    "?personFields=names,emailAddresses,photos,phoneNumbers" +
+                    "&pageSize=100";
+
             return webClient.get()
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                     .retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), 
-                        response -> {
-                            logger.error("Error calling Google API: {}", response.statusCode());
-                            return Mono.error(new RuntimeException("Error calling Google API: " + response.statusCode()));
-                        })
+                    .onStatus(
+                            status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                logger.error("Error calling Google API: {}", response.statusCode());
+                                return Mono.error(new RuntimeException("Error calling Google API: " + response.statusCode()));
+                            }
+                    )
                     .bodyToMono(PeopleResponse.class)
-                    .block();
-                    
+                    .block(); // Blocking call since we need synchronous response
+
         } catch (WebClientResponseException e) {
             logger.error("WebClient error in getContacts: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw new RuntimeException("Error retrieving contacts: " + e.getStatusText(), e);
@@ -62,29 +66,37 @@ public class GoogleContactsService {
             throw new RuntimeException("Error retrieving contacts", e);
         }
     }
-    
+
+    /**
+     * Retrieves user profile details from the Google People API.
+     *
+     * @param authentication OAuth2 authentication token
+     * @return Person object containing user details
+     */
     public Person getUserDetails(OAuth2AuthenticationToken authentication) {
         try {
             OAuth2AuthorizedClient client = getAuthorizedClient(authentication);
             String accessToken = client.getAccessToken().getTokenValue();
             logger.debug("Access token obtained for user details retrieval");
-            
+
             // Google People API endpoint for user profile
             String url = "https://people.googleapis.com/v1/people/me" +
-                    "?personFields=names ,emailAddresses,addresses,birthdays,phoneNumbers,genders,photos";
-            
+                    "?personFields=names,emailAddresses,addresses,birthdays,phoneNumbers,genders,photos";
+
             return webClient.get()
                     .uri(url)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                     .retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), 
-                    response -> {
-                        logger.error("Error calling Google API: {}", response.statusCode());
-                        return Mono.error(new RuntimeException("Error calling Google API: " + response.statusCode()));
-                    })
+                    .onStatus(
+                            status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> {
+                                logger.error("Error calling Google API: {}", response.statusCode());
+                                return Mono.error(new RuntimeException("Error calling Google API: " + response.statusCode()));
+                            }
+                    )
                     .bodyToMono(Person.class)
-                    .block();
-                    
+                    .block(); // Blocking call since we need synchronous response
+
         } catch (WebClientResponseException e) {
             logger.error("WebClient error in getUserDetails: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw new RuntimeException("Error retrieving user details: " + e.getStatusText(), e);
@@ -93,17 +105,24 @@ public class GoogleContactsService {
             throw new RuntimeException("Error retrieving user details", e);
         }
     }
-    
+
+    /**
+     * Retrieves the OAuth2AuthorizedClient for the authenticated user.
+     *
+     * @param authentication OAuth2 authentication token
+     * @return OAuth2AuthorizedClient containing access token
+     */
     private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
                 authentication.getAuthorizedClientRegistrationId(),
-                authentication.getName());
-                
+                authentication.getName()
+        );
+
         if (client == null) {
             logger.error("OAuth2 client is null - authorization required");
             throw new RuntimeException("Not authorized. Please authenticate with Google first.");
         }
-        
+
         return client;
     }
 }

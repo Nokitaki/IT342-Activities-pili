@@ -86,7 +86,7 @@ public class Person {
     }
 
     private void calculateAge() {
-        if (birthdays != null && !birthdays.isEmpty()) {
+        if (birthdays != null && !birthdays.isEmpty() && birthdays.get(0).getYear() != 0) {
             Birthday birthday = birthdays.get(0);
             LocalDate birthDate = LocalDate.of(birthday.getYear(), birthday.getMonth(), birthday.getDay());
             this.age = new Age(birthDate);
@@ -94,4 +94,5 @@ public class Person {
             this.age = null;
         }
     }
+    
 }

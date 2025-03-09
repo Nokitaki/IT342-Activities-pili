@@ -5,7 +5,7 @@ import java.util.List;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Date {
+public class PeopleApiDate { // Renamed from "class Date"
     private int year;
     private int month;
     private int day;

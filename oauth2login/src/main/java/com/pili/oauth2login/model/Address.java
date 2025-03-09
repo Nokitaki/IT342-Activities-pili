@@ -5,7 +5,8 @@ import java.util.List;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Address {
+public class Address { // Change from "class Address" to "public class Address"
+
     private String formattedValue;
     private String type;
 

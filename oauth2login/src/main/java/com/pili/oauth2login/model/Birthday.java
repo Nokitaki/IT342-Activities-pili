@@ -5,13 +5,13 @@ import java.time.LocalDate;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Birthday {
-    private Date date;
+    private PeopleApiDate date;
 
-    public Date getDate() {
+    public PeopleApiDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(PeopleApiDate date) {
         this.date = date;
     }
 
