@@ -1,6 +1,8 @@
 package com.pili.oauth2login.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,6 +17,12 @@ public class Person {
     private List<Birthday> birthdays;
     private List<Gender> genders;
     private Age age; // Change from List<AgeRange> to Age
+    @JsonProperty("etag")
+    private String etag;  // Ensure this exists
+
+    public String getEtag() {  // Ensure getter exists
+        return etag;
+    }
 
     public String getResourceName() {
         return resourceName;

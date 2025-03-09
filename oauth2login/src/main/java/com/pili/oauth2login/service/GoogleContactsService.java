@@ -125,4 +125,74 @@ public class GoogleContactsService {
 
         return client;
     }
+
+    public void updateContact(OAuth2AuthenticationToken authentication, String contactId, String newName) {
+        OAuth2AuthorizedClient client = getAuthorizedClient(authentication);
+        String accessToken = client.getAccessToken().getTokenValue();
+    
+        // Step 1: Fetch the existing contact to get its etag
+        String getUrl = "https://people.googleapis.com/v1/" + contactId + "?personFields=names,etag";
+    
+        Person existingContact = webClient.get()
+                .uri(getUrl)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(Person.class)
+                .block(); // Blocking call
+    
+        if (existingContact == null || existingContact.getEtag() == null) {
+            throw new RuntimeException("Failed to retrieve contact etag for update.");
+        }
+    
+        // Step 2: Use the retrieved etag in the update request
+        String updateUrl = "https://people.googleapis.com/v1/" + contactId + "?updatePersonFields=names";
+    
+        String requestBody = "{ \"etag\": \"" + existingContact.getEtag() + "\", " +
+                             "\"names\": [{\"givenName\": \"" + newName + "\"}] }";
+    
+        webClient.patch()
+                .uri(updateUrl)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
+    
+
+    public void deleteContact(OAuth2AuthenticationToken authentication, String contactId) {
+        OAuth2AuthorizedClient client = getAuthorizedClient(authentication);
+        String accessToken = client.getAccessToken().getTokenValue();
+    
+        String url = "https://people.googleapis.com/v1/" + contactId + ":deleteContact";
+    
+        webClient.delete()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
+    
+    public void createContact(OAuth2AuthenticationToken authentication, String name, String email, String phone) {
+        OAuth2AuthorizedClient client = getAuthorizedClient(authentication);
+        String accessToken = client.getAccessToken().getTokenValue();
+    
+        String url = "https://people.googleapis.com/v1/people:createContact";
+    
+        String requestBody = "{ \"names\": [{\"givenName\": \"" + name + "\"}], " +
+                             "\"emailAddresses\": [{\"value\": \"" + email + "\"}], " +
+                             "\"phoneNumbers\": [{\"value\": \"" + phone + "\"}] }";
+    
+        webClient.post()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
+    
 }

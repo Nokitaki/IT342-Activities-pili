@@ -88,6 +88,7 @@
                         <!-- UPDATE (EDIT) FORM -->
                         <form action="/contacts/update" method="post" style="display:inline;">
                             <input type="hidden" name="id" th:value="${contact.resourceName}">
+                            <input type="hidden" name="etag" th:value="${contact.etag}">
                             <input type="text" name="name" placeholder="New Name" required>
                             <button type="submit" class="button edit-btn">Edit</button>
                         </form>
