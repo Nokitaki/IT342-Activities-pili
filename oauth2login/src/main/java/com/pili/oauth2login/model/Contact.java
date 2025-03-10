@@ -1,3 +1,4 @@
+//model/Contact.java
 package com.pili.oauth2login.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

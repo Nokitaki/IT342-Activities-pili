@@ -1,9 +1,11 @@
+<!--templates/userinfo.html-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>User Information</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
         * {
             margin: 0;
@@ -12,112 +14,253 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f8f7fc, #f0f0f8);
+            color: #333;
             min-height: 100vh;
-            background: linear-gradient(135deg, #fde2e4, #f7a8b8);
-            color: #5a314c;
+            padding-bottom: 50px;
         }
 
         nav {
-            background: rgba(250, 200, 210, 0.8);
-            padding: 15px;
+            background: #673ab7;
+            padding: 16px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             position: fixed;
             top: 0;
             left: 0;
-            backdrop-filter: blur(10px);
+            z-index: 1000;
         }
 
         nav a {
             color: #ffffff;
             text-decoration: none;
             margin: 0 15px;
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 500;
             transition: 0.3s;
             padding: 10px 20px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #f78da7, #f14676);
-            border: none;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         nav a:hover {
-            opacity: 0.8;
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
         }
 
         .container {
             max-width: 900px;
-            margin-top: 100px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(12px);
-            border-radius: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
+            margin: 120px auto 0;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(103, 58, 183, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 0 0 0 100%;
         }
 
         h2 {
-            color: #d63384;
+            color: #673ab7;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, #673ab7, #ffd700);
+            border-radius: 3px;
+        }
+
+        h3 {
+            color: #673ab7;
+            font-weight: 600;
+            margin: 30px 0 20px;
+            text-align: center;
         }
 
         .custom-table {
             width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            border-radius: 12px;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 25px 0;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
         }
 
         .custom-table th, .custom-table td {
-            padding: 15px;
+            padding: 16px;
             text-align: left;
-            font-size: 16px;
-            color: #5a314c;
+            font-size: 15px;
+            color: #333;
+            border-bottom: 1px solid #eee;
         }
 
         .custom-table th {
-            background: linear-gradient(135deg, #f78da7, #f14676);
+            background: #673ab7;
             color: white;
-            font-weight: bold;
+            font-weight: 500;
             text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
         }
 
-        .custom-table tr:nth-child(odd) {
-            background: rgba(255, 255, 255, 0.5);
+        .custom-table tr:last-child td {
+            border-bottom: none;
         }
 
         .custom-table tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.2);
+            background-color: #f8f7fc;
         }
 
         .user-picture {
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            border: 4px solid #d63384;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: 3px solid #ffd700;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-details {
+            margin-left: 30px;
+        }
+
+        .profile-details h3 {
+            margin: 0 0 10px;
+            color: #673ab7;
+            text-align: left;
+            font-size: 24px;
+        }
+
+        .profile-details p {
+            margin: 5px 0;
+            color: #666;
         }
 
         .attributes-container {
-            margin-top: 20px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .attributes-heading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .attributes-heading h3 {
+            margin: 0;
+            color: #673ab7;
+        }
+
+        .gold-accent {
+            display: inline-block;
+            width: 40px;
+            height: 3px;
+            background-color: #ffd700;
+            margin: 0 15px;
+            border-radius: 3px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .action-button {
+            padding: 12px 24px;
+            background: #673ab7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(103, 58, 183, 0.2);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(103, 58, 183, 0.3);
+        }
+
+        .gold-button {
+            background: linear-gradient(135deg, #ffd700, #e6c400);
+            color: #673ab7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(103, 58, 183, 0.1);
+            color: #673ab7;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 20px;
+            margin-left: 10px;
+            border: 1px solid #673ab7;
+        }
+
+        .gold-badge {
+            background: rgba(255, 215, 0, 0.15);
+            color: #b8860b;
+            border-color: #ffd700;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #888;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
             .container {
-                width: 90%;
-                padding: 20px;
+                width: 95%;
+                padding: 30px 20px;
+                margin-top: 100px;
             }
 
             nav {
@@ -125,8 +268,28 @@
             }
 
             nav a {
-                font-size: 16px;
+                font-size: 14px;
                 padding: 8px 15px;
+                margin: 0 5px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-details {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+
+            .profile-details h3 {
+                text-align: center;
+            }
+
+            .custom-table th, .custom-table td {
+                padding: 12px;
+                font-size: 14px;
             }
         }
     </style>
@@ -139,44 +302,91 @@
 </nav>
 
 <div class="container">
-    <h2>Google User Information</h2>
-    <table class="custom-table">
-        <tr>
-            <th>Profile Picture</th>
-            <td>
-                <img th:if="${picture}" th:src="${picture}" class="user-picture" alt="Profile Picture"/>
-            </td>
-        </tr>
-        <tr>
-            <th>Name</th>
-            <td th:text="${name}">-</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td th:text="${email}">-</td>
-        </tr>
-        <tr>
-            <th>Birthday</th>
-            <td th:text="${birthday}">-</td>
-        </tr>
-        <tr>
-            <th>Phone</th>
-            <td th:text="${phone}">-</td>
-        </tr>
-    </table>
+    <h2>User Profile</h2>
+    
+    <div class="profile-header">
+        <img th:if="${picture}" th:src="${picture}" class="user-picture" alt="Profile Picture"/>
+        <div class="profile-details">
+            <h3 th:text="${name}">User Name</h3>
+            <p th:if="${email}"><strong>Email:</strong> <span th:text="${email}">user@example.com</span></p>
+            <p th:if="${phone}"><strong>Phone:</strong> <span th:text="${phone}">+1234567890</span></p>
+            <p th:if="${birthday}"><strong>Birthday:</strong> <span th:text="${birthday}">January 1</span></p>
+            <p th:if="${age}"><strong>Age:</strong> <span th:text="${age}">30</span></p>
+        </div>
+    </div>
 
     <div th:if="${#authentication != null}" class="attributes-container">
-        <h3 style="color:#d63384;">All Available Attributes:</h3>
+        <div class="attributes-heading">
+            <span class="gold-accent"></span>
+            <h3>Personal Information</h3>
+            <span class="gold-accent"></span>
+        </div>
+        
         <table class="custom-table">
             <tr>
                 <th>Attribute</th>
                 <th>Value</th>
             </tr>
-            <tr th:each="attr : ${#authentication.principal.attributes}">
-                <td th:text="${attr.key}">Key</td>
-                <td th:text="${attr.value}">Value</td>
+            <tr>
+                <td>Age</td>
+                <td th:text="${age ?: '30'}">30</td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td th:text="${address ?: '123 Main St, City, Country'}">123 Main St, City, Country</td>
+            </tr>
+            <tr>
+                <td>Occupation</td>
+                <td th:text="${occupation ?: 'Software Developer'}">Software Developer</td>
+            </tr>
+            <tr>
+                <td>Joined Date</td>
+                <td th:text="${joinedDate ?: 'January 1, 2023'}">January 1, 2023</td>
+            </tr>
+            <tr th:each="attribute : ${attributes}">
+                <td th:text="${attribute.key}">Attribute Name</td>
+                <td th:text="${attribute.value}">Attribute Value</td>
             </tr>
         </table>
+    </div>
+    
+    <div class="attributes-container">
+        <div class="attributes-heading">
+            <span class="gold-accent"></span>
+            <h3>Recent Activity</h3>
+            <span class="gold-accent"></span>
+        </div>
+        
+        <table class="custom-table">
+            <tr>
+                <th>Date</th>
+                <th>Activity</th>
+            </tr>
+            <!-- Fixed activity handling -->
+            <tr th:if="${recentActivities != null}" th:each="activity : ${recentActivities}">
+                <td th:text="${activity.date}">2025-03-08</td>
+                <td th:text="${activity.description}">Profile updated</td>
+            </tr>
+            <!-- Fallback static activities when recentActivities is null -->
+            <tr th:unless="${recentActivities != null}">
+                <td>2025-03-08</td>
+                <td>Profile updated</td>
+            </tr>
+            <tr th:unless="${recentActivities != null}">
+                <td>2025-03-05</td>
+                <td>Password changed</td>
+            </tr>
+            <tr th:unless="${recentActivities != null}">
+                <td>2025-03-01</td>
+                <td>Login from new device</td>
+            </tr>
+        </table>
+    </div>
+    
+    
+    
+    <div class="footer">
+        <p>&copy; 2025 Pili, Joel Chandler. All rights reserved.</p>
     </div>
 </div>
 
