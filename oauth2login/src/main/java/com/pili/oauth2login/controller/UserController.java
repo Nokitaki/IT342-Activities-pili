@@ -1,70 +1,71 @@
 //UserController.java
 package com.pili.oauth2login.controller;
 
-import com.pili.oauth2login.model.Person;
-import com.pili.oauth2login.service.GoogleContactsService;
-
+import com.pili.oauth2login.model.Contact;
+import com.pili.oauth2login.service.GooglePeopleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
 
 @Controller
-public class UserController {
+public class userController {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private final GoogleContactsService googleContactsService;
+    private static final Logger logger = LoggerFactory.getLogger(userController.class);
+    private final GooglePeopleService googlePeopleService;
 
-    @Autowired
-    public UserController(GoogleContactsService googleContactsService) {
-        this.googleContactsService = googleContactsService;
+    public userController(GooglePeopleService googlePeopleService) {
+        this.googlePeopleService = googlePeopleService;
+    }
+
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/googleuser";
     }
 
     @GetMapping("/user-info")
-    public String userInfo(@AuthenticationPrincipal OAuth2User principal, 
-                            OAuth2AuthenticationToken authentication,
-                            Model model) {
-        if (principal == null || authentication == null) {
-            logger.warn("Attempted to access /user-info without authentication");
-            return "redirect:/login"; // Redirect to login page
-        }
-
-        model.addAttribute("user", principal.getAttributes());
-
-        try {
-            // Fetch detailed profile from People API
-            Person userDetails = googleContactsService.getUserDetails(authentication);
-            model.addAttribute("userDetails", userDetails);
-
-            // Ensure age is added separately
-            if (userDetails.getAge() != null) {
-                model.addAttribute("age", userDetails.getAge().getAge());
-            } else {
-                model.addAttribute("age", "Unknown");
-            }
-
-            logger.info("Successfully retrieved user details");
-            return "user-info";
-        } catch (Exception e) {
-            logger.error("Error retrieving user details", e);
-            model.addAttribute("error", "Failed to retrieve user details: " + e.getMessage());
-            model.addAttribute("errorDetails", e.toString());
-            return "error";
-        }
+    @ResponseBody
+    public Map<String, Object> getUser(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        return oAuth2User.getAttributes();
     }
 
-    
-    @ExceptionHandler(Exception.class)
-    public String handleError(Exception e, Model model) {
-        logger.error("Unhandled exception in UserController", e);
-        model.addAttribute("error", "An unexpected error occurred");
-        model.addAttribute("errorDetails", e.toString());
-        return "error";
+    @GetMapping("/googleuser")
+    public String getUserInfo(Model model, OAuth2AuthenticationToken authentication) {
+        OAuth2User user = authentication.getPrincipal();
+        Map<String, Object> attributes = user.getAttributes();
+        logger.debug("User attributes: {}", attributes);
+
+        // Check if the birthday attribute is available
+        String birthday = (String) attributes.get("birthday");
+        if (birthday == null) {
+            // Fetch the birthday attribute using the Google People API
+            birthday = googlePeopleService.getBirthday(authentication);
+        }
+        logger.debug("User birthday: {}", birthday);
+
+        model.addAttribute("name", user.getAttribute("name"));
+        model.addAttribute("email", user.getAttribute("email"));
+        model.addAttribute("picture", user.getAttribute("picture"));
+        model.addAttribute("birthday", birthday);
+
+        String phoneNumber = googlePeopleService.getPhoneNumber(authentication);
+        model.addAttribute("phone", phoneNumber);
+
+        Map<String, Contact> contactsMap = googlePeopleService.getContactsMap(authentication);
+        model.addAttribute("contactsMap", contactsMap);
+
+        return "userinfo";
+    }
+
+    @GetMapping("/secured")
+    public String secured() {
+        return "Secured";
     }
 }

@@ -13,20 +13,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
         return http
-            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                .anyRequest().authenticated() // All requests require authentication
-            )
-            .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("http://localhost:8080/user-info", true) // Redirect after successful login
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/") // Redirect after logout
-            )
-            .formLogin(form -> form.defaultSuccessUrl("/secured", true))
-            .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for simplicity (not recommended for production)
-            .build();
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth -> oauth.defaultSuccessUrl("/googleuser", true))
+                .formLogin(form -> form.defaultSuccessUrl("/secured", true))
+                .logout(logout -> logout.logoutSuccessUrl("/"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.disable())
+                .build();
     }
-    
 }
